@@ -4,10 +4,17 @@
 # -------------------------------------------------------------------------------------------------
 
 resource "aws_iam_openid_connect_provider" "this" {
-  url             = var.url
-  client_id_list  = var.client_id_list
-  thumbprint_list = var.thumbprint_list
-  tags            = var.provider_tags
+  url            = var.url
+  client_id_list = var.client_id_list
+
+  thumbprint_list = distinct(
+    concat(
+      var.thumbprint_list
+      [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+    )
+  )
+
+  tags = var.provider_tags
 }
 
 # -------------------------------------------------------------------------------------------------
@@ -39,4 +46,11 @@ data "aws_iam_policy_document" "assume" {
       values   = var.federated_subject_claims
     }
   }
+}
+
+# -------------------------------------------------------------------------------------------------
+# Fetch certificate of endpoint, used to fetch thumbprint
+# -------------------------------------------------------------------------------------------------
+data "tls_certificate" "this" {
+  url = var.url
 }

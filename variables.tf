@@ -34,9 +34,7 @@ variable "client_id_list" {
 variable "thumbprint_list" {
   type        = list(string)
   description = "(optional) Thumbprint list"
-  default = [
-    "a031c46782e6e6c662c2c87c76da9aa62ccabd8e",
-  ]
+  default     = []
 }
 
 variable "provider_tags" {
