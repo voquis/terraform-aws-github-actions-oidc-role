@@ -15,13 +15,14 @@ First create a role that authorises with GitHub Actions OIDC provider with speci
 ```terraform
 module "my_github_oidc_provider_role" {
   source  = "voquis"
-  version = "0.0.1"
+  version = "0.0.2"
 
   federated_subject_claims = [
     "repo:my-org/my-repo-1:ref:refs/heads/branch-a",
     "repo:my-org/my-repo-2:ref:refs/heads/branch-b",
     "repo:my-org/my-repo-3:ref:refs/heads/branch-c",
     "repo:my-org/my-repo-4:pull_request",
+    "repo:my-org/my-repo-5:ref:refs/tags/*",
   ]
 }
 ```
