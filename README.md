@@ -14,7 +14,7 @@ To grant the GitHub actions running on pull requests and specific branches for s
 First create a role that authorises with GitHub Actions OIDC provider with specific subject claims:
 ```terraform
 module "my_github_oidc_provider_role" {
-  source  = "voquis"
+  source  = "voquis/github-actions-oidc-role/aws"
   version = "0.0.2"
 
   federated_subject_claims = [
