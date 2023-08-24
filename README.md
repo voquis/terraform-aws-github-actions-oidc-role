@@ -7,6 +7,8 @@ For example, to allow actions from specific repositories or branches to run acti
 
 The `sub` (subject) field is used to [populate the claim](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#condition-keys-wif).
 
+Optionally, to attach a new policy to the new GitHub IAM Role that allows reading and writing to a terraform S3 backend with locking, set `create_terraform_s3_backend_policy=true` and provide the S3 state bucket and DynamoDB lock table ARNs (`s3_bucket_arn` and `dynamodb_table_arn`).
+
 ## Examples
 ### Grant repo Actions on branches access to an S3 bucket
 To grant the GitHub actions running on pull requests and specific branches for selected repositories access to list the contents of an S3 bucket.
@@ -15,7 +17,7 @@ First create a role that authorises with GitHub Actions OIDC provider with speci
 ```terraform
 module "my_github_oidc_provider_role" {
   source  = "voquis/github-actions-oidc-role/aws"
-  version = "0.0.2"
+  version = "0.0.3"
 
   federated_subject_claims = [
     "repo:my-org/my-repo-1:ref:refs/heads/branch-a",
