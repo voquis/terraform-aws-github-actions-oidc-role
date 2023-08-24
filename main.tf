@@ -54,3 +54,53 @@ data "aws_iam_policy_document" "assume" {
 data "tls_certificate" "this" {
   url = var.url
 }
+
+# -------------------------------------------------------------------------------------------------
+# Optional IAM policy and attachment for access to terraform state S3 buckets and DynamoDB state lock tables
+# -------------------------------------------------------------------------------------------------
+resource "aws_iam_policy" "terraform" {
+  for_each = var.create_terraform_s3_backend_policy ? { k : "v" } : {}
+
+  description = "Github Actions IAM policy to grant read/write access to terraform remote state bucket and lock table"
+  name        = var.policy_name
+  policy      = data.aws_iam_policy_document.terraform[each.key].json
+}
+
+resource "aws_iam_role_policy_attachment" "terraform" {
+  for_each = var.create_terraform_s3_backend_policy ? { k : "v" } : {}
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.terraform[each.key].arn
+}
+
+data "aws_iam_policy_document" "terraform" {
+  for_each = var.create_terraform_s3_backend_policy ? { k : "v" } : {}
+
+  # Allow read and write from terraform S3 state bucket
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+
+    resources = [
+      var.s3_bucket_arn,
+      "${var.s3_bucket_arn}/*",
+    ]
+  }
+  # Allow state locking of dynamodb table
+  statement {
+    actions = [
+      "dynamodb:DescribeTable",
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:DeleteItem",
+    ]
+
+    resources = [
+      var.dynamodb_table_arn
+    ]
+  }
+}
