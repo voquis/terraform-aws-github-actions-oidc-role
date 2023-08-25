@@ -7,7 +7,10 @@ For example, to allow actions from specific repositories or branches to run acti
 
 The `sub` (subject) field is used to [populate the claim](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_iam-condition-keys.html#condition-keys-wif).
 
-Optionally, to attach a new policy to the new GitHub IAM Role that allows reading and writing to a terraform S3 backend with locking, set `create_terraform_s3_backend_policy=true` and provide the S3 state bucket and DynamoDB lock table ARNs (`s3_bucket_arn` and `dynamodb_table_arn`).
+Optionally, to attach a new policy to the new GitHub IAM Role that allows reading and writing to a terraform S3 backend with locking, set `create_terraform_s3_backend_policy = true` and provide the S3 state bucket and DynamoDB lock table ARNs (`s3_bucket_arn` and `dynamodb_table_arn`).
+
+Optionally, to attach a new policy to the new GitHub IAM Role that allows pushing container images to ECR repositories, set `create_ecr_push_policy = true` and provide the ECR repository ARNs (`ecr_repository_arns`).
+
 
 ## Examples
 ### Grant repo Actions on branches access to an S3 bucket
