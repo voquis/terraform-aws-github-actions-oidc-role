@@ -62,7 +62,7 @@ resource "aws_iam_policy" "terraform" {
   for_each = var.create_terraform_s3_backend_policy ? { k : "v" } : {}
 
   description = "Github Actions IAM policy to grant read/write access to terraform remote state bucket and lock table"
-  name        = var.policy_name
+  name        = var.terraform_policy_name
   policy      = data.aws_iam_policy_document.terraform[each.key].json
 }
 
@@ -86,8 +86,8 @@ data "aws_iam_policy_document" "terraform" {
     ]
 
     resources = [
-      var.s3_bucket_arn,
-      "${var.s3_bucket_arn}/*",
+      var.terraform_s3_bucket_arn,
+      "${var.terraform_s3_bucket_arn}/*",
     ]
   }
   # Allow state locking of dynamodb table
@@ -100,7 +100,57 @@ data "aws_iam_policy_document" "terraform" {
     ]
 
     resources = [
-      var.dynamodb_table_arn
+      var.terraform_dynamodb_table_arn
     ]
+  }
+}
+
+# -------------------------------------------------------------------------------------------------
+# Optional IAM policy and attachment for pushing images to an ECR repository
+# -------------------------------------------------------------------------------------------------
+resource "aws_iam_policy" "ecr_push" {
+  for_each = var.create_ecr_push_policy ? { k : "v" } : {}
+
+  description = "Github Actions IAM policy to grant push image permisions to an ECR repository"
+  name        = var.ecr_push_policy_name
+  policy      = data.aws_iam_policy_document.ecr_push[each.key].json
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_push" {
+  for_each = var.create_ecr_push_policy ? { k : "v" } : {}
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.ecr_push[each.key].arn
+}
+
+data "aws_iam_policy_document" "ecr_push" {
+  for_each = var.create_ecr_push_policy ? { k : "v" } : {}
+
+  # Allow logging in to ECR
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
+
+  statement {
+    actions = [
+      # Allow pushing and pulling to/from ECR
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:CompleteLayerUpload",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart",
+      # Allow managing lifecyle policy
+      "ecr:GetLifecyclePolicy",
+    ]
+
+    resources = var.ecr_repository_arns
   }
 }
