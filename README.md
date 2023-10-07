@@ -11,6 +11,8 @@ Optionally, to attach a new policy to the new GitHub IAM Role that allows readin
 
 Optionally, to attach a new policy to the new GitHub IAM Role that allows pushing container images to ECR repositories, set `create_ecr_push_policy = true` and provide the ECR repository ARNs (`ecr_repository_arns`).
 
+Optionally, to attach a new policy to the new GitHub IAM Role that allows syncing S3 objects to Buckets, set `create_s3_sync_policy = true` and provide the S3 Bucket ARNs (`s3_sync_bucket_arns`).
+This may be useful, for example if pushing frontend build assets from a pipeline to buckets.
 
 ## Examples
 ### Grant repo Actions on branches access to an S3 bucket
