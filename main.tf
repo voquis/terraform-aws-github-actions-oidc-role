@@ -111,7 +111,7 @@ data "aws_iam_policy_document" "terraform" {
 resource "aws_iam_policy" "ecr_push" {
   for_each = var.create_ecr_push_policy ? { k : "v" } : {}
 
-  description = "Github Actions IAM policy to grant push image permisions to an ECR repository"
+  description = "Github Actions IAM policy to grant push image permissions to an ECR repository"
   name        = var.ecr_push_policy_name
   policy      = data.aws_iam_policy_document.ecr_push[each.key].json
 }
@@ -152,5 +152,42 @@ data "aws_iam_policy_document" "ecr_push" {
     ]
 
     resources = var.ecr_repository_arns
+  }
+}
+
+# -------------------------------------------------------------------------------------------------
+# Optional IAM policy and attachment for syncing objects to S3 buckets
+# -------------------------------------------------------------------------------------------------
+resource "aws_iam_policy" "s3_sync" {
+  for_each = var.create_s3_sync_policy ? { k : "v" } : {}
+
+  description = "Github Actions IAM policy to grant S3 sync permissions to S3 buckets"
+  name        = var.s3_sync_policy_name
+  policy      = data.aws_iam_policy_document.s3_sync[each.key].json
+}
+
+resource "aws_iam_role_policy_attachment" "s3_sync" {
+  for_each = var.create_s3_sync_policy ? { k : "v" } : {}
+
+  role       = aws_iam_role.this.name
+  policy_arn = aws_iam_policy.s3_sync[each.key].arn
+}
+
+data "aws_iam_policy_document" "s3_sync" {
+  for_each = var.create_s3_sync_policy ? { k : "v" } : {}
+
+  # Allow reading and writing from specified S3 bucket for S3 sync
+  statement {
+    actions = [
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+    ]
+
+    resources = concat(
+      [for bucket_arn in var.s3_sync_bucket_arns : bucket_arn],
+      [for bucket_arn in var.s3_sync_bucket_arns : "${bucket_arn}/*"],
+    )
   }
 }

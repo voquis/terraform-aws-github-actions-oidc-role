@@ -86,3 +86,22 @@ variable "ecr_repository_arns" {
   description = "ECR Repository ARNs that the GitHub Actions IAM role is permitted to push images to"
   default     = []
 }
+
+# Variables for permissions to sync S3 objects in specified Buckets
+variable "create_s3_sync_policy" {
+  type        = bool
+  description = "Whether to create and attach a policy used by the GitHub Actions IAM role to sync objects S3 buckets"
+  default     = false
+}
+
+variable "s3_sync_policy_name" {
+  type        = string
+  description = "IAM policy name to attach to GitHub Action IAM role for access to sync objects in S3 buckets"
+  default     = "github-s3-sync"
+}
+
+variable "s3_sync_bucket_arns" {
+  type        = list(string)
+  description = "S3 Bucket ARNs that the GitHub Actions IAM role is permitted to sync objects to"
+  default     = []
+}
