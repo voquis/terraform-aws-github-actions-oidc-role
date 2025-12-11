@@ -56,7 +56,7 @@ data "tls_certificate" "this" {
 }
 
 # -------------------------------------------------------------------------------------------------
-# Optional IAM policy and attachment for access to terraform state S3 buckets and DynamoDB state lock tables
+# Optional IAM policy and attachment for access to terraform state S3 buckets
 # -------------------------------------------------------------------------------------------------
 resource "aws_iam_policy" "terraform" {
   for_each = var.create_terraform_s3_backend_policy ? { k : "v" } : {}
@@ -88,19 +88,6 @@ data "aws_iam_policy_document" "terraform" {
     resources = [
       var.terraform_s3_bucket_arn,
       "${var.terraform_s3_bucket_arn}/*",
-    ]
-  }
-  # Allow state locking of dynamodb table
-  statement {
-    actions = [
-      "dynamodb:DescribeTable",
-      "dynamodb:GetItem",
-      "dynamodb:PutItem",
-      "dynamodb:DeleteItem",
-    ]
-
-    resources = [
-      var.terraform_dynamodb_table_arn
     ]
   }
 }
