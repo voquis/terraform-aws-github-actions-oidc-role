@@ -127,6 +127,7 @@ data "aws_iam_policy_document" "ecr_push" {
   statement {
     actions = [
       # Allow pushing and pulling to/from ECR
+      "ecr:BatchDeleteImage",
       "ecr:BatchGetImage",
       "ecr:BatchCheckLayerAvailability",
       "ecr:CompleteLayerUpload",
